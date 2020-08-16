@@ -1,4 +1,4 @@
-from composite_strategy import composite, initial_investment
+from composite_strategy import composite, initial_investment, cagr_calculator
 from hyg_cd_first_chart import hyg_cd
 
 import pandas as pd
@@ -25,9 +25,26 @@ hyg_perf = ((hyg_cd['hyg'][start_date:] + 1).cumprod() * initial_investment)
 cd_perf = ((hyg_cd['cd'][start_date:] + 1).cumprod() * initial_investment)
 composite = composite[start_date:]
 
-print(hyg_perf.index[0])
-print(cd_perf.index[0])
-print(composite.index[0])
+all_strats = [hyg_perf, cd_perf, composite]
+
+max_dd = {}
+cagr = {}
+
+for strat in all_strats:
+
+    # updating the max_dd dictionary, key is the name of the strategy, value is the max drawdown
+    max_dd.update({strat.name: min(strat / strat.cummax() - 1)})
+
+    # updating the cagr dictionary which tells you the cagr for each strategy
+    cagr.update({strat.name: cagr_calculator(strat)})
+
+max_dd.update({'composite strategy': min(composite / composite.cummax() - 1)})
+
+# updating the cagr dictionary which tells you the cagr for each strategy
+cagr.update({'composite strategy': cagr_calculator(composite)})
+
+# print(max_dd)
+# print(cagr)
 
 
 if __name__ == '__main__':
@@ -68,5 +85,7 @@ if __name__ == '__main__':
 
     # plotting chart
     plt.show()
+
+    fig.savefig('composite-vs-base-chart')
 
 
