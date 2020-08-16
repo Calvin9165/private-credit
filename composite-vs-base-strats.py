@@ -1,0 +1,72 @@
+from composite_strategy import composite, initial_investment
+from hyg_cd_first_chart import hyg_cd
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+
+df_list = [hyg_cd, composite]
+
+start_date = df_list[0].index[0]
+
+# find the most recent date from each dataframe
+# this will then be used to have a start date that is equal for all strategies
+for df in df_list[1:]:
+
+    if df.index[0] > start_date:
+
+        start_date = df.index[0]
+
+
+# converting to a string so that we can slice the dataframes
+start_date = start_date.strftime('%Y-%m-%d')
+
+hyg_perf = ((hyg_cd['hyg'][start_date:] + 1).cumprod() * initial_investment)
+cd_perf = ((hyg_cd['cd'][start_date:] + 1).cumprod() * initial_investment)
+composite = composite[start_date:]
+
+print(hyg_perf.index[0])
+print(cd_perf.index[0])
+print(composite.index[0])
+
+
+if __name__ == '__main__':
+
+
+    fig = plt.figure(figsize=(7, 7))
+    gs = fig.add_gridspec(nrows=10, ncols=4)
+
+    # creating the performance subplot
+    ax1 = fig.add_subplot(gs[0:6, :])
+    ax1.set_title('Performance of $10,000 Investment')
+    ax1.plot(cd_perf, label='private credit', color='r')
+    ax1.plot(hyg_perf, label='high yield bonds')
+    ax1.plot(composite, label='composite strategy', color='black')
+    ax1.legend()
+
+    # Setting the y ticks to be properly formatted 10000 becomes $10,000
+    formatter = ticker.StrMethodFormatter('${x:,.0f}')
+    ax1.yaxis.set_major_formatter(formatter)
+
+    # creating the drawdown subplot
+    ax2 = fig.add_subplot(gs[7:, :])
+    ax2.set_title('Drawdowns')
+    ax2.set_xlabel('Date')
+
+    # high yield bond drawdowns
+    ax2.plot((hyg_perf / hyg_perf.cummax()) - 1)
+
+    # private credit drawdowns
+    ax2.plot((cd_perf / cd_perf.cummax()) - 1, color='r')
+
+    # composite strategy drawdowns
+    ax2.plot((composite / composite.cummax()) - 1, color='black')
+
+    # changing the yaxis of drawdowns subplot to percentages
+    pct_formatter = ticker.PercentFormatter(1, decimals=0)
+    ax2.yaxis.set_major_formatter(pct_formatter)
+
+    # plotting chart
+    plt.show()
+
+
