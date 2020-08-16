@@ -77,7 +77,7 @@ cagr.update({'composite strategy': cagr_calculator(composite)})
 
 if __name__ == '__main__':
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8, 6))
     gs = fig.add_gridspec(nrows=10, ncols=4)
 
     ax1 = fig.add_subplot(gs[:7, :])
@@ -111,6 +111,8 @@ if __name__ == '__main__':
 
 
     plt.show()
+
+    # fig.savefig('all-strategy-returns.png')
 
 
 
