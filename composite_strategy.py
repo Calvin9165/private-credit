@@ -114,6 +114,11 @@ if __name__ == '__main__':
 
     # fig.savefig('all-strategy-returns.png')
 
+    # composite.rename({'0': 'private_credit'}, axis=1, inplace=True)
+    composite = composite.pct_change()
+    composite.fillna(0, inplace=True)
+    composite.to_csv('private_credit_index.csv')
+
 
 
 
